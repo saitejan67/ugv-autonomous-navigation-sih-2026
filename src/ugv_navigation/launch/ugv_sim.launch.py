@@ -56,15 +56,18 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
 
-    # Bridge simulation clock to ROS 2
-    clock_bridge = Node(
+    # Bridge simulation clock and motion commands between ROS 2 and Gazebo
+    bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
-        arguments=['/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock'],
+        arguments=[
+            '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
+            '/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist',
+        ],
         output='screen',
     )
 
-    return [gazebo, robot_state_publisher, spawn_ugv, clock_bridge]
+    return [gazebo, robot_state_publisher, spawn_ugv, bridge]
 
 
 def generate_launch_description():

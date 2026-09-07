@@ -111,3 +111,29 @@ def test_ugv_world_sdf_validity():
     )
     assert result.returncode == 0
     assert 'Valid.' in result.stdout
+
+
+def test_diff_drive_plugin_configuration(urdf_tree):
+    """Confirm the DiffDrive plugin is configured with all 4 wheels and /cmd_vel."""
+    root, _ = urdf_tree
+    plugin = root.find(".//plugin[@name='gz::sim::systems::DiffDrive']")
+    assert plugin is not None, 'DiffDrive plugin not found in model'
+
+    left_joints = [j.text for j in plugin.findall('left_joint')]
+    right_joints = [j.text for j in plugin.findall('right_joint')]
+    assert 'front_left_wheel_joint' in left_joints
+    assert 'rear_left_wheel_joint' in left_joints
+    assert 'front_right_wheel_joint' in right_joints
+    assert 'rear_right_wheel_joint' in right_joints
+
+    wheel_sep = plugin.find('wheel_separation')
+    assert wheel_sep is not None
+    assert float(wheel_sep.text) == 0.50
+
+    wheel_rad = plugin.find('wheel_radius')
+    assert wheel_rad is not None
+    assert float(wheel_rad.text) == 0.10
+
+    topic = plugin.find('topic')
+    assert topic is not None
+    assert topic.text == '/cmd_vel'
