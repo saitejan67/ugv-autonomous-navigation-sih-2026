@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ugv">
+
+  <!-- Dimensions and Physical Parameters -->
+  <xacro:property name="chassis_length" value="0.60" />
+  <xacro:property name="chassis_width" value="0.40" />
+  <xacro:property name="chassis_height" value="0.20" />
+  <xacro:property name="chassis_mass" value="15.0" />
+
+  <xacro:property name="wheel_radius" value="0.10" />
+  <xacro:property name="wheel_width" value="0.05" />
+  <xacro:property name="wheel_mass" value="1.0" />
+
+  <xacro:property name="wheel_x_offset" value="0.18" />
+  <xacro:property name="wheel_y_offset" value="0.25" />
+  <xacro:property name="wheel_z_offset" value="-0.05" />
+  <xacro:property name="base_link_z_offset" value="0.15" />
+
+  <!-- Inertia Helper Macros -->
+  <xacro:macro name="box_inertia" params="m x y z">
+    <inertial>
+      <origin xyz="0 0 -0.02" rpy="0 0 0" />
+      <mass value="${m}" />
+      <inertia ixx="${(m/12.0) * (y*y + z*z)}" ixy="0.0" ixz="0.0"
+               iyy="${(m/12.0) * (x*x + z*z)}" iyz="0.0"
+               izz="${(m/12.0) * (x*x + y*y)}" />
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="cylinder_inertia" params="m r h">
+    <inertial>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+      <mass value="${m}" />
+      <inertia ixx="${(m/12.0) * (3*r*r + h*h)}" ixy="0.0" ixz="0.0"
+               iyy="${(m/12.0) * (3*r*r + h*h)}" iyz="0.0"
+               izz="${(m/2.0) * (r*r)}" />
+    </inertial>
+  </xacro:macro>
+
+  <!-- Materials -->
+  <material name="chassis_mat">
+    <color rgba="0.15 0.25 0.35 1.0" />
+  </material>
+  <material name="wheel_mat">
+    <color rgba="0.1 0.1 0.1 1.0" />
+  </material>
+  <material name="camera_mat">
+    <color rgba="0.8 0.1 0.1 1.0" />
+  </material>
+  <material name="lidar_mat">
+    <color rgba="0.2 0.2 0.2 1.0" />
+  </material>
+
+  <!-- Root: base_footprint (projection on ground plane at z=0) -->
+  <link name="base_footprint" />
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint" />
+    <child link="base_link" />
+    <origin xyz="0 0 ${base_link_z_offset}" rpy="0 0 0" />
+  </joint>
+
+  <!-- Chassis: base_link -->
+  <link name="base_link">
+    <xacro:box_inertia m="${chassis_mass}" x="${chassis_length}" y="${chassis_width}" z="${chassis_height}" />
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}" />
+      </geometry>
+      <material name="chassis_mat" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="${chassis_length} ${chassis_width} ${chassis_height}" />
+      </geometry>
+    </collision>
+  </link>
+
+  <gazebo reference="base_link">
+    <material>Gazebo/SlateGray</material>
+  </gazebo>
+
+  <!-- Wheel Macro -->
+  <xacro:macro name="ugv_wheel" params="prefix parent x y z">
+    <link name="${prefix}_wheel">
+      <xacro:cylinder_inertia m="${wheel_mass}" r="${wheel_radius}" h="${wheel_width}" />
+      <visual>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}" />
+        </geometry>
+        <material name="wheel_mat" />
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+        <geometry>
+          <cylinder radius="${wheel_radius}" length="${wheel_width}" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}_wheel_joint" type="continuous">
+      <parent link="${parent}" />
+      <child link="${prefix}_wheel" />
+      <origin xyz="${x} ${y} ${z}" rpy="0 0 0" />
+      <axis xyz="0 1 0" />
+    </joint>
+
+    <gazebo reference="${prefix}_wheel">
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <kp>1000000.0</kp>
+      <kd>100.0</kd>
+      <minDepth>0.001</minDepth>
+      <material>Gazebo/DarkGrey</material>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- 4 Wheels -->
+  <xacro:ugv_wheel prefix="front_left"  parent="base_link" x="${wheel_x_offset}"  y="${wheel_y_offset}"  z="${wheel_z_offset}" />
+  <xacro:ugv_wheel prefix="front_right" parent="base_link" x="${wheel_x_offset}"  y="-${wheel_y_offset}" z="${wheel_z_offset}" />
+  <xacro:ugv_wheel prefix="rear_left"   parent="base_link" x="-${wheel_x_offset}" y="${wheel_y_offset}"  z="${wheel_z_offset}" />
+  <xacro:ugv_wheel prefix="rear_right"  parent="base_link" x="-${wheel_x_offset}" y="-${wheel_y_offset}" z="${wheel_z_offset}" />
+
+  <!-- Sensor Placeholders (prepared cleanly for later phases) -->
+
+  <!-- Camera mount and optical frame -->
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.04 0.06 0.03" />
+      </geometry>
+      <material name="camera_mat" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <box size="0.04 0.06 0.03" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="camera_link" />
+    <origin xyz="${chassis_length/2.0} 0.0 ${chassis_height/2.0}" rpy="0 0 0" />
+  </joint>
+
+  <gazebo reference="camera_link">
+    <material>Gazebo/Red</material>
+  </gazebo>
+
+  <link name="camera_optical_frame" />
+
+  <joint name="camera_optical_joint" type="fixed">
+    <parent link="camera_link" />
+    <child link="camera_optical_frame" />
+    <origin xyz="0 0 0" rpy="${-pi/2} 0 ${-pi/2}" />
+  </joint>
+
+  <!-- LiDAR mount -->
+  <link name="lidar_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.04" length="0.05" />
+      </geometry>
+      <material name="lidar_mat" />
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <cylinder radius="0.04" length="0.05" />
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="lidar_link" />
+    <origin xyz="0.0 0.0 ${chassis_height/2.0 + 0.025}" rpy="0 0 0" />
+  </joint>
+
+  <gazebo reference="lidar_link">
+    <material>Gazebo/Black</material>
+  </gazebo>
+
+  <!-- IMU link -->
+  <link name="imu_link" />
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="imu_link" />
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+  </joint>
+
+</robot>

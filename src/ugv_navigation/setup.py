@@ -17,6 +17,8 @@ setup(
             glob('launch/*.launch.py')),
         (os.path.join('share', package_name, 'worlds'),
             glob('worlds/*.sdf')),
+        (os.path.join('share', package_name, 'urdf'),
+            glob('urdf/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
