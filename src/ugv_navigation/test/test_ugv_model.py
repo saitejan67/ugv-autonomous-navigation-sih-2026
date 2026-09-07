@@ -137,3 +137,26 @@ def test_diff_drive_plugin_configuration(urdf_tree):
     topic = plugin.find('topic')
     assert topic is not None
     assert topic.text == '/cmd_vel'
+
+
+def test_diff_drive_odometry_configuration(urdf_tree):
+    """Confirm the DiffDrive plugin exposes wheel-based odometry and dynamic TF."""
+    root, _ = urdf_tree
+    plugin = root.find(".//plugin[@name='gz::sim::systems::DiffDrive']")
+    assert plugin is not None, 'DiffDrive plugin not found in model'
+
+    odom_topic = plugin.find('odom_topic')
+    assert odom_topic is not None
+    assert odom_topic.text == '/odom'
+
+    tf_topic = plugin.find('tf_topic')
+    assert tf_topic is not None
+    assert tf_topic.text == '/tf'
+
+    frame_id = plugin.find('frame_id')
+    assert frame_id is not None
+    assert frame_id.text == 'odom'
+
+    child_frame_id = plugin.find('child_frame_id')
+    assert child_frame_id is not None
+    assert child_frame_id.text == 'base_footprint'

@@ -56,13 +56,15 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
 
-    # Bridge simulation clock and motion commands between ROS 2 and Gazebo
+    # Bridge simulation clock, motion commands, and wheel-based odometry between ROS 2 and Gazebo
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         arguments=[
             '/clock@rosgraph_msgs/msg/Clock[ignition.msgs.Clock',
             '/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist',
+            '/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry',
+            '/tf@tf2_msgs/msg/TFMessage[ignition.msgs.Pose_V',
         ],
         output='screen',
     )
