@@ -17,11 +17,13 @@ def launch_setup(context, *args, **kwargs):
 
     world_path = os.path.join(package_share, 'worlds', 'ugv_world.sdf')
     xacro_path = os.path.join(package_share, 'urdf', 'ugv.urdf.xacro')
+    sensors_bridge_config = os.path.join(package_share, 'config', 'sensors_bridge.yaml')
 
     headless = LaunchConfiguration('headless').perform(context).lower() in ['true', '1']
     gz_args = f'-s -r {world_path}' if headless else f'-r {world_path}'
 
-    # Process Xacro to URDF string
+    # Process Xacro to URDF string (used for the TF tree only; the simulated
+    # robot model and its sensors are declared directly in the world SDF).
     robot_description_raw = xacro.process_file(xacro_path).toxml()
 
     gazebo = IncludeLaunchDescription(
@@ -41,21 +43,6 @@ def launch_setup(context, *args, **kwargs):
         }],
     )
 
-    # Spawn the UGV entity in Gazebo using the robot_description string
-    spawn_ugv = Node(
-        package='ros_gz_sim',
-        executable='create',
-        output='screen',
-        arguments=[
-            '-world', 'ugv_world',
-            '-string', robot_description_raw,
-            '-name', 'ugv',
-            '-x', '0.0',
-            '-y', '0.0',
-            '-z', '0.15',
-        ],
-    )
-
     # Bridge simulation clock, motion commands, and wheel-based odometry between ROS 2 and Gazebo
     bridge = Node(
         package='ros_gz_bridge',
@@ -69,7 +56,15 @@ def launch_setup(context, *args, **kwargs):
         output='screen',
     )
 
-    return [gazebo, robot_state_publisher, spawn_ugv, bridge]
+    # Bridge camera, LiDAR and IMU sensor data from Gazebo to ROS 2
+    sensors_bridge = Node(
+        package='ros_gz_bridge',
+        executable='bridge_node',
+        parameters=[{'config_file': sensors_bridge_config}],
+        output='screen',
+    )
+
+    return [gazebo, robot_state_publisher, bridge, sensors_bridge]
 
 
 def generate_launch_description():

@@ -136,12 +136,6 @@
       </geometry>
       <material name="camera_mat" />
     </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <geometry>
-        <box size="0.04 0.06 0.03" />
-      </geometry>
-    </collision>
   </link>
 
   <joint name="camera_joint" type="fixed">
@@ -152,6 +146,24 @@
 
   <gazebo reference="camera_link">
     <material>Gazebo/Red</material>
+    <sensor name="camera_sensor" type="camera">
+      <always_on>1</always_on>
+      <update_rate>20</update_rate>
+      <visualize>false</visualize>
+      <topic>camera</topic>
+      <camera name="camera">
+        <optical_frame_id>camera_optical_frame</optical_frame_id>
+        <horizontal_fov>1.3962634</horizontal_fov>
+        <image>
+          <width>640</width>
+          <height>480</height>
+        </image>
+        <clip>
+          <near>0.1</near>
+          <far>100</far>
+        </clip>
+      </camera>
+    </sensor>
   </gazebo>
 
   <link name="camera_optical_frame" />
@@ -163,30 +175,44 @@
   </joint>
 
   <!-- LiDAR mount -->
-  <link name="lidar_link">
-    <visual>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <geometry>
-        <cylinder radius="0.04" length="0.05" />
-      </geometry>
-      <material name="lidar_mat" />
-    </visual>
-    <collision>
-      <origin xyz="0 0 0" rpy="0 0 0" />
-      <geometry>
-        <cylinder radius="0.04" length="0.05" />
-      </geometry>
-    </collision>
-  </link>
+  <link name="lidar_link" />
 
   <joint name="lidar_joint" type="fixed">
     <parent link="base_link" />
     <child link="lidar_link" />
-    <origin xyz="0.0 0.0 ${chassis_height/2.0 + 0.025}" rpy="0 0 0" />
+    <origin xyz="0.0 0.0 ${chassis_height/2.0 + 0.125}" rpy="0 0 0" />
   </joint>
 
   <gazebo reference="lidar_link">
     <material>Gazebo/Black</material>
+    <sensor name="gpu_lidar_sensor" type="gpu_lidar">
+      <always_on>1</always_on>
+      <update_rate>20</update_rate>
+      <visualize>false</visualize>
+      <topic>scan</topic>
+      <ignition_frame_id>lidar_link</ignition_frame_id>
+      <lidar>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159265358979</min_angle>
+            <max_angle>3.14159265358979</max_angle>
+          </horizontal>
+          <vertical>
+            <samples>1</samples>
+            <resolution>1</resolution>
+            <min_angle>0.0</min_angle>
+            <max_angle>0.0</max_angle>
+          </vertical>
+        </scan>
+        <range>
+          <min>0.1</min>
+          <max>20.0</max>
+          <resolution>0.01</resolution>
+        </range>
+      </lidar>
+    </sensor>
   </gazebo>
 
   <!-- IMU link -->
@@ -197,6 +223,16 @@
     <child link="imu_link" />
     <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
   </joint>
+
+  <gazebo reference="imu_link">
+    <sensor name="imu_sensor" type="imu">
+      <always_on>1</always_on>
+      <update_rate>100</update_rate>
+      <visualize>false</visualize>
+      <topic>imu</topic>
+      <ignition_frame_id>imu_link</ignition_frame_id>
+    </sensor>
+  </gazebo>
 
   <!-- Gazebo Fortress Differential / Skid-Steer Drive Plugin -->
   <gazebo>
