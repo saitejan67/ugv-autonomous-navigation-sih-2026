@@ -64,7 +64,26 @@ def launch_setup(context, *args, **kwargs):
         output='screen',
     )
 
-    return [gazebo, robot_state_publisher, bridge, sensors_bridge]
+    # Camera-based obstacle perception (feeds the navigation controller bias)
+    perception = Node(
+        package='ugv_navigation',
+        executable='perception_node',
+        output='screen',
+    )
+
+    # Reactive navigation: odometry + LiDAR -> /cmd_vel to reach the goal
+    nav_controller = Node(
+        package='ugv_navigation',
+        executable='nav_controller_node',
+        output='screen',
+        parameters=[{
+            'goal_x': 8.0,
+            'goal_y': 0.0,
+        }],
+    )
+
+    return [gazebo, robot_state_publisher, bridge, sensors_bridge,
+            perception, nav_controller]
 
 
 def generate_launch_description():

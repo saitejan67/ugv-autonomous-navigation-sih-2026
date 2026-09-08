@@ -226,6 +226,68 @@ def test_imu_sensor_configuration(urdf_tree):
     assert frame_id is not None and frame_id.text == 'imu_link'
 
 
+def test_ugv_world_wheels_roll_forward():
+    """
+    Confirm world wheels spin about the lateral axis as rolling wheels.
+
+    A Z-axis wheel joint plus an unrotated cylinder geometry makes the wheel
+    spin in place and flings the chassis around under contact, so the world
+    must match the xacro model (axis 0 1 0, cylinder aimed along Y).
+    """
+    tree = ET.parse(WORLD_PATH)
+    world = tree.getroot().find('world')
+    assert world is not None
+    ugv = world.find(".//model[@name='ugv']")
+    assert ugv is not None
+
+    wheel_joints = [j for j in ugv.findall("joint[@type='revolute']")
+                    if j.get('name').endswith('wheel_joint')]
+    assert len(wheel_joints) == 4
+    for joint in wheel_joints:
+        axis = joint.find('axis/xyz')
+        assert axis is not None
+        assert axis.text == '0 1 0', \
+            f"{joint.get('name')} must spin around the lateral (Y) axis"
+
+    for wheel in ['front_left_wheel', 'front_right_wheel',
+                  'rear_left_wheel', 'rear_right_wheel']:
+        link = ugv.find(f"link[@name='{wheel}']")
+        assert link is not None
+        collision = link.find('collision')
+        assert collision is not None
+        cyl_pose = collision.find('pose')
+        assert cyl_pose is not None, \
+            f'{wheel} collision cylinder must be oriented to roll'
+        rpy = [float(v) for v in cyl_pose.text.split()[3:6]]
+        assert rpy[0] > 1.0, f'{wheel} cylinder must aim along the Y axis'
+
+
+def test_ugv_world_publishes_true_pose_odometry():
+    """
+    Confirm the world publishes true body-pose odometry on /odom.
+
+    True body-pose odometry is required for goal-directed navigation; the
+    model is driven kinematically (VelocityControl) so the pose stream
+    matches the commanded motion.
+    """
+    tree = ET.parse(WORLD_PATH)
+    world = tree.getroot().find('world')
+    assert world is not None
+
+    ugv = world.find(".//model[@name='ugv']")
+    assert ugv is not None
+
+    odom_pub = ugv.find(
+        ".//plugin[@name='gz::sim::systems::OdometryPublisher']")
+    assert odom_pub is not None, \
+        'OdometryPublisher plugin not found on the ugv model'
+    assert odom_pub.find('odom_topic').text == 'odom'
+    assert odom_pub.find('robot_base_frame').text == 'base_footprint'
+
+    assert ugv.find(".//plugin[@name='gz::sim::systems::DiffDrive']") is None, \
+        'DiffDrive is not needed; the model is driven kinematically'
+
+
 def test_ugv_world_has_blocker_wall():
     """Confirm the demo world includes the blocker wall for Phase 3E."""
     tree = ET.parse(WORLD_PATH)
@@ -307,7 +369,9 @@ def test_ugv_world_has_robot_model_with_sensors():
     assert camera.find('camera/optical_frame_id').text == 'camera_optical_frame'
 
     assert ugv.find(".//sensor[@name='imu_sensor']") is not None
-    assert ugv.find(".//plugin[@name='gz::sim::systems::DiffDrive']") is not None
+    vc = ugv.find(".//plugin[@name='gz::sim::systems::VelocityControl']")
+    assert vc is not None, 'VelocityControl plugin must drive the kinematic model'
+    assert vc.find('topic').text == 'cmd_vel'
 
 
 def test_urdf_to_sdf_sensor_placement():

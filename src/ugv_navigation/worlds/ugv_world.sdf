@@ -2,9 +2,10 @@
 <!-- Simulation world for the UGV platform in Gazebo Fortress. -->
 <sdf version="1.6">
   <world name="ugv_world">
-    <physics name="1ms" type="ignored">
+    <physics name="1ms" type="ode">
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
     </physics>
 
     <plugin filename="ignition-gazebo-physics-system" name="gz::sim::systems::Physics" />
@@ -41,8 +42,8 @@
           <surface>
             <friction>
               <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
+                <mu>0.4</mu>
+                <mu2>0.4</mu2>
               </ode>
             </friction>
           </surface>
@@ -216,10 +217,10 @@
     </model>
 
     <model name="ugv">
-      <pose>0 0 0.15 0 0 0</pose>
+      <pose>0 0 0.01 0 0 0</pose>
       <link name="base_footprint">
         <inertial>
-          <pose>0 0 0.13 0 0 0</pose>
+          <pose>0 0 0.06 0 0 0</pose>
           <mass>15</mass>
           <inertia>
             <ixx>0.25</ixx>
@@ -240,8 +241,24 @@
           <surface>
             <friction>
               <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
+                <mu>0.4</mu>
+                <mu2>0.4</mu2>
+              </ode>
+            </friction>
+          </surface>
+        </collision>
+        <collision name="hull_collision">
+          <pose>0 0 0.02 0 0 0</pose>
+          <geometry>
+            <box>
+              <size>0.14 0.30 0.04</size>
+            </box>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.4</mu>
+                <mu2>0.4</mu2>
               </ode>
             </friction>
           </surface>
@@ -341,27 +358,27 @@
           </inertia>
         </inertial>
         <collision name="collision">
+          <pose>0 0 0 1.57079632679 0 0</pose>
           <geometry>
-            <cylinder>
+            <sphere>
               <radius>0.1</radius>
-              <length>0.05</length>
-            </cylinder>
+            </sphere>
           </geometry>
           <surface>
             <friction>
               <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
+                <mu>0.4</mu>
+                <mu2>0.4</mu2>
               </ode>
             </friction>
           </surface>
         </collision>
         <visual name="visual">
+          <pose>0 0 0 1.57079632679 0 0</pose>
           <geometry>
-            <cylinder>
+            <sphere>
               <radius>0.1</radius>
-              <length>0.05</length>
-            </cylinder>
+            </sphere>
           </geometry>
           <material>
             <ambient>0.1 0.1 0.1 1</ambient>
@@ -383,27 +400,27 @@
           </inertia>
         </inertial>
         <collision name="collision">
+          <pose>0 0 0 1.57079632679 0 0</pose>
           <geometry>
-            <cylinder>
+            <sphere>
               <radius>0.1</radius>
-              <length>0.05</length>
-            </cylinder>
+            </sphere>
           </geometry>
           <surface>
             <friction>
               <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
+                <mu>0.4</mu>
+                <mu2>0.4</mu2>
               </ode>
             </friction>
           </surface>
         </collision>
         <visual name="visual">
+          <pose>0 0 0 1.57079632679 0 0</pose>
           <geometry>
-            <cylinder>
+            <sphere>
               <radius>0.1</radius>
-              <length>0.05</length>
-            </cylinder>
+            </sphere>
           </geometry>
           <material>
             <ambient>0.1 0.1 0.1 1</ambient>
@@ -425,27 +442,27 @@
           </inertia>
         </inertial>
         <collision name="collision">
+          <pose>0 0 0 1.57079632679 0 0</pose>
           <geometry>
-            <cylinder>
+            <sphere>
               <radius>0.1</radius>
-              <length>0.05</length>
-            </cylinder>
+            </sphere>
           </geometry>
           <surface>
             <friction>
               <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
+                <mu>0.4</mu>
+                <mu2>0.4</mu2>
               </ode>
             </friction>
           </surface>
         </collision>
         <visual name="visual">
+          <pose>0 0 0 1.57079632679 0 0</pose>
           <geometry>
-            <cylinder>
+            <sphere>
               <radius>0.1</radius>
-              <length>0.05</length>
-            </cylinder>
+            </sphere>
           </geometry>
           <material>
             <ambient>0.1 0.1 0.1 1</ambient>
@@ -467,27 +484,27 @@
           </inertia>
         </inertial>
         <collision name="collision">
+          <pose>0 0 0 1.57079632679 0 0</pose>
           <geometry>
-            <cylinder>
+            <sphere>
               <radius>0.1</radius>
-              <length>0.05</length>
-            </cylinder>
+            </sphere>
           </geometry>
           <surface>
             <friction>
               <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
+                <mu>0.4</mu>
+                <mu2>0.4</mu2>
               </ode>
             </friction>
           </surface>
         </collision>
         <visual name="visual">
+          <pose>0 0 0 1.57079632679 0 0</pose>
           <geometry>
-            <cylinder>
+            <sphere>
               <radius>0.1</radius>
-              <length>0.05</length>
-            </cylinder>
+            </sphere>
           </geometry>
           <material>
             <ambient>0.1 0.1 0.1 1</ambient>
@@ -501,7 +518,7 @@
         <child>front_left_wheel</child>
         <pose>0.18 0.25 0.10 0 0 0</pose>
         <axis>
-          <xyz>0 0 1</xyz>
+          <xyz>0 1 0</xyz>
           <limit>
             <lower>-1e16</lower>
             <upper>1e16</upper>
@@ -513,7 +530,7 @@
         <child>front_right_wheel</child>
         <pose>0.18 -0.25 0.10 0 0 0</pose>
         <axis>
-          <xyz>0 0 1</xyz>
+          <xyz>0 1 0</xyz>
           <limit>
             <lower>-1e16</lower>
             <upper>1e16</upper>
@@ -525,7 +542,7 @@
         <child>rear_left_wheel</child>
         <pose>-0.18 0.25 0.10 0 0 0</pose>
         <axis>
-          <xyz>0 0 1</xyz>
+          <xyz>0 1 0</xyz>
           <limit>
             <lower>-1e16</lower>
             <upper>1e16</upper>
@@ -537,7 +554,7 @@
         <child>rear_right_wheel</child>
         <pose>-0.18 -0.25 0.10 0 0 0</pose>
         <axis>
-          <xyz>0 0 1</xyz>
+          <xyz>0 1 0</xyz>
           <limit>
             <lower>-1e16</lower>
             <upper>1e16</upper>
@@ -545,27 +562,21 @@
         </axis>
       </joint>
 
-      <plugin filename="ignition-gazebo-diff-drive-system" name="gz::sim::systems::DiffDrive">
-        <left_joint>front_left_wheel_joint</left_joint>
-        <left_joint>rear_left_wheel_joint</left_joint>
-        <right_joint>front_right_wheel_joint</right_joint>
-        <right_joint>rear_right_wheel_joint</right_joint>
-        <wheel_separation>0.5</wheel_separation>
-        <wheel_radius>0.1</wheel_radius>
-        <odom_publish_frequency>50</odom_publish_frequency>
-        <odom_topic>odom</odom_topic>
-        <tf_topic>tf</tf_topic>
-        <frame_id>odom</frame_id>
-        <child_frame_id>base_footprint</child_frame_id>
-        <max_linear_acceleration>2.5</max_linear_acceleration>
-        <min_linear_acceleration>-2.5</min_linear_acceleration>
-        <max_angular_acceleration>3.0</max_angular_acceleration>
-        <min_angular_acceleration>-3.0</min_angular_acceleration>
-        <max_linear_velocity>1.5</max_linear_velocity>
-        <min_linear_velocity>-1.5</min_linear_velocity>
-        <max_angular_velocity>2.0</max_angular_velocity>
-        <min_angular_velocity>-2.0</min_angular_velocity>
+      <plugin filename="ignition-gazebo-velocity-control-system"
+              name="gz::sim::systems::VelocityControl">
         <topic>/cmd_vel</topic>
+        <linear_velocity_limit>0.6</linear_velocity_limit>
+        <linear_velocity_gain>2.6</linear_velocity_gain>
+        <angular_velocity_limit>1.2</angular_velocity_limit>
+        <angular_velocity_gain>2.0</angular_velocity_gain>
+      </plugin>
+
+      <plugin filename="ignition-gazebo-odometry-publisher-system"
+              name="gz::sim::systems::OdometryPublisher">
+        <odom_topic>odom</odom_topic>
+        <odom_frame>odom</odom_frame>
+        <robot_base_frame>base_footprint</robot_base_frame>
+        <odom_publish_frequency>50</odom_publish_frequency>
       </plugin>
     </model>
 
@@ -582,8 +593,8 @@
           <surface>
             <friction>
               <ode>
-                <mu>1.0</mu>
-                <mu2>1.0</mu2>
+                <mu>0.4</mu>
+                <mu2>0.4</mu2>
               </ode>
             </friction>
           </surface>

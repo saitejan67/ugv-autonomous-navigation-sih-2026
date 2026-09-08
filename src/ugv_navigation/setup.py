@@ -36,6 +36,7 @@ setup(
     entry_points={
         'console_scripts': [
             'perception_node = ugv_navigation.perception_node:main',
+            'nav_controller_node = ugv_navigation.nav_controller:main',
         ],
     },
 )
